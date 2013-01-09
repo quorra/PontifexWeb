@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Calc &middot; Deck Calculator</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="Quora">
+
+    <!-- Le styles -->
+    <link href="./bootstrap/css/bootstrap.css" rel="stylesheet">
+    <style type="text/css">
+      body {
+        padding-top: 40px;
+        padding-bottom: 40px;
+        background-color: #f5f5f5;
+      }
+
+      .form-signin {
+        max-width: 300px;
+        padding: 19px 29px 29px;
+        margin: 0 auto 20px;
+        background-color: #fff;
+        border: 1px solid #e5e5e5;
+        -webkit-border-radius: 5px;
+           -moz-border-radius: 5px;
+                border-radius: 5px;
+        -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+           -moz-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+                box-shadow: 0 1px 2px rgba(0,0,0,.05);
+      }
+      .form-signin .form-signin-heading,
+      .form-signin .checkbox {
+        margin-bottom: 10px;
+      }
+      .form-signin input[type="text"],
+      .form-signin input[type="password"] {
+        font-size: 16px;
+        height: auto;
+        margin-bottom: 15px;
+        padding: 7px 9px;
+      }
+
+    </style>
+    <link href="./bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <!-- Fav and touch icons -->
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="./bootstrap/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="./bootstrap/ico/apple-touch-icon-114-precomposed.png">
+      <link rel="apple-touch-icon-precomposed" sizes="72x72" href="./bootstrap/ico/apple-touch-icon-72-precomposed.png">
+                    <link rel="apple-touch-icon-precomposed" href="./bootstrap/ico/apple-touch-icon-57-precomposed.png">
+                                   <link rel="shortcut icon" href="./bootstrap/ico/favicon.png">
+  </head>
+
+  <body>
+
+    <div class="container">
+
+
+      <div class="form-signin">
+        <h2 class="form-signin-heading">Calculate the Deck</h2>
+        <input id="card" type="text" class="input-block-level" placeholder="Card">
+        <div id="answer" class="alert alert-block alert-info fade in">
+          <button type="button" class="close" data-dismiss="alert">&times;</button>
+          <h4 class="alert-heading">Your Card Values</h4>
+          <p id="cardval" style="word-wrap:break-word;"></p>
+        </div>
+        <button id="calcButton" class="btn btn-large btn-primary">Calculate</button>
+      </div>
+
+      <div class="form-signin">
+        <h2 class="form-signin-heading">Message as Numbers</h2>
+        <input id="message" type="text" class="input-block-level" placeholder="Message">
+        <div id="messageAsNumbers" class="alert alert-block alert-info fade in">
+          <button type="button" class="close" data-dismiss="alert">&times;</button>
+          <h4 class="alert-heading">Your Message</h4>
+          <p id="value"></p>
+        </div>
+        <button id="calcButton1" class="btn btn-large btn-primary">Calculate</button>
+      </div>
+
+      <div class="form-signin">
+        <h2 class="form-signin-heading">Encrypt Message</h2>
+        <input id="message" type="text" class="input-block-level" placeholder="Message">
+        <input id="deck" type="text" class="input-block-level" placeholder="Deck or passphrase">
+        <div id="encryptedMessage" class="alert alert-block alert-info fade in">
+          <button type="button" class="close" data-dismiss="alert">&times;</button>
+          <h4 class="alert-heading">Your Encrypted Message</h4>
+          <p id="value"></p>
+        </div>
+        <button id="encryptButton" class="btn btn-large btn-primary">Encrypt</button>
+      </div>
+      <div class="form-signin">
+        <h2 class="form-signin-heading">Decrypt Message</h2>
+        <input id="message" type="text" class="input-block-level" placeholder="Message">
+        <input id="deck" type="text" class="input-block-level" placeholder="Deck or passphrase">
+        <div id="decryptedMessage" class="alert alert-block alert-info fade in">
+          <button type="button" class="close" data-dismiss="alert">&times;</button>
+          <h4 class="alert-heading">Your Decrypted Message</h4>
+          <p id="value"></p>
+        </div>
+        <button id="decryptButton" class="btn btn-large btn-primary">Decrypt</button>
+      </div>
+    </div> <!-- /container -->
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="./bootstrap/js/jquery.js"></script>
+    <script src="./bootstrap/js/bootstrap-transition.js"></script>
+    <script src="./bootstrap/js/bootstrap-alert.js"></script>
+    <script src="./bootstrap/js/bootstrap-modal.js"></script>
+    <script src="./bootstrap/js/bootstrap-dropdown.js"></script>
+    <script src="./bootstrap/js/bootstrap-scrollspy.js"></script>
+    <script src="./bootstrap/js/bootstrap-tab.js"></script>
+    <script src="./bootstrap/js/bootstrap-tooltip.js"></script>
+    <script src="./bootstrap/js/bootstrap-popover.js"></script>
+    <script src="./bootstrap/js/bootstrap-button.js"></script>
+    <script src="./bootstrap/js/bootstrap-collapse.js"></script>
+    <script src="./bootstrap/js/bootstrap-carousel.js"></script>
+    <script src="./bootstrap/js/bootstrap-typeahead.js"></script>
+
+    <script> 
+      var alphabet = ['', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+      var suits    = ['C', 'D', 'H', 'S']
+      var values   = ['', 'A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K']
+      $('#answer').hide()
+      $('#messageAsNumbers').hide()
+      $('#calcButton').on('click', function() {
+        var cards  = $('#card').val().toUpperCase().split(" ")
+
+        $('#answer').hide();
+        $('#cardval').html("");
+        for (var i = 0; i < cards.length; i++) {          
+          var card   = cards[i]
+
+          if ($.trim(card) != "") {
+            var retval = calcCard(card)
+            $('#cardval').append(retval + "&nbsp;");
+          }
+        }
+
+        $('#answer').slideDown('slow', function() {
+        });
+      });
+
+      $('#calcButton1').on('click', function() {
+        var message = convertToSections($('#message').val().toUpperCase());
+        $('#messageAsNumbers').hide();
+        $('#messageAsNumbers #value').html(message);
+        $('#messageAsNumbers').slideDown('slow', function() {
+        });
+      });
+
+      function calcCard(card) {
+        if (card == 'JA' || card == 'JB') {
+          return 53
+        }
+        var value = cardValue(card.substring(0, card.length - 1))
+        var suit  = suitMultiplier(card.substring(card.length - 1))
+
+        if (value == -1) {
+          return "Card value is invalid"
+        }
+        if (suit == -1) {
+          return "Suit is invalid"
+        }
+
+        return value + (suit * 13)
+      }
+
+      function cardValue(card) {
+          for (var i = 1; i < values.length; i++) {
+              if (card == values[i]) {
+                return i
+              }
+          }
+
+          if (card == 'A' || card == 'B') {
+            return 53
+          }
+          return -1
+      }
+
+      function suitMultiplier(suit) {
+          for (var i = 0; i < suits.length; i++) {
+              if (suit == suits[i]) {
+                return i
+              }
+          }
+          return -1
+      }
+
+      function convertToSections(toConvert) {
+          var retval = []
+          var arr = toConvert.split('');
+          var idx = 0;
+          var section = ""
+          for (var i = 0; i < arr.length; i++) {
+            if (alphabet.indexOf(arr[i]) != -1) {
+              section += alphabet.indexOf(arr[i]);
+              if (section.split(' ').length == 5) {
+                  retval[idx++] = section;
+                  section = ""
+              }
+              else {
+                  section += " "
+              }
+            }
+          }
+        
+          if (section != "") {
+            while (section.split(' ').length != 6) {
+              section += alphabet.indexOf("X") 
+              if (section.split(' ').length != 6) {
+                section += " ";
+              }
+            }
+            retval[idx++] = section;
+          }
+
+          return retval.join('<br/>');
+      }
+    </script>
+
+  </body>
+</html>
