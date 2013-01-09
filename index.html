@@ -86,8 +86,8 @@
 
       <div class="form-signin">
         <h2 class="form-signin-heading">Encrypt Message</h2>
-        <input id="message" type="text" class="input-block-level" placeholder="Message">
-        <input id="deck" type="text" class="input-block-level" placeholder="Deck or passphrase">
+        <input id="message1" type="text" class="input-block-level" placeholder="Message">
+        <input id="deck1" type="text" class="input-block-level" placeholder="Deck or passphrase">
         <div id="encryptedMessage" class="alert alert-block alert-info fade in">
           <button type="button" class="close" data-dismiss="alert">&times;</button>
           <h4 class="alert-heading">Your Encrypted Message</h4>
@@ -97,8 +97,8 @@
       </div>
       <div class="form-signin">
         <h2 class="form-signin-heading">Decrypt Message</h2>
-        <input id="message" type="text" class="input-block-level" placeholder="Message">
-        <input id="deck" type="text" class="input-block-level" placeholder="Deck or passphrase">
+        <input id="message2" type="text" class="input-block-level" placeholder="Message">
+        <input id="deck2" type="text" class="input-block-level" placeholder="Deck or passphrase">
         <div id="decryptedMessage" class="alert alert-block alert-info fade in">
           <button type="button" class="close" data-dismiss="alert">&times;</button>
           <h4 class="alert-heading">Your Decrypted Message</h4>
@@ -157,6 +157,104 @@
         });
       });
 
+      $('#encryptButton').on('click', function() {
+        var message = convertToValues($('#message1').val().toUpperCase());
+
+        var deck = $.trim($('#deck1').val()).length == 165 || $.trim($('#deck1').val()).length == 166 ? $.trim($('#deck1').val()).split(' ') : deckFromPassPhrase($('#deck1').val())
+
+        var keystream = keystreamForMessage(message, deck)
+        $('#encryptedMessage').hide();
+        $('#encryptedMessage #value').html(message.join('&nbsp;') + '<br/>' + keystream.join('&nbsp;'));
+        $('#encryptedMessage').slideDown('slow', function() {
+        });
+      });
+
+      function deckFromPassPhrase(passphrase) {
+
+      }
+
+      function keystreamForMessage(message, deck) {
+        var retval = []
+        var deckCopy = deck.slice()
+        for (var i = 0; i < message.length; i++) {
+          retval[i] = incrementKeyStream(deckCopy)
+          // break;
+        }
+        return retval
+      }
+
+      function incrementKeyStream(deck) {
+        var jaPos = moveCard(deck, 'JA', 1)
+        var jbPos = moveCard(deck, 'JB', 2)
+
+        if (jaPos > jbPos) {
+          pos1 = jbPos
+          pos2 = jaPos
+        }
+        else {
+          pos1 = jaPos
+          pos2 = jbPos
+        }
+
+        deck = tripleCut(deck, pos1, pos2)
+        deck = countCut(deck)
+
+        countValue = calcCard(deck[0])
+
+        /*
+        if (deck[countValue - 1] == 'JB' || deck[countValue - 1] == 'JA') {
+          return incrementKeyStream(deck)
+        }
+
+        return calcOutput(deck[countValue - 1])
+        */
+      }
+
+      function moveCard(deck, card, position) {
+        if (position == 0) return;
+
+        var initial = deck.indexOf(card)
+
+        var newpos = initial + position
+
+        if (newpos > 54) {
+          newpos -= 54;
+        }
+        if (newpos < 0) {
+          newpos += 54
+        }
+
+        if (initial > newpos) {
+          for (var i = initial; i > newpos; i--) {
+            deck[initial] = deck[initial - 1]
+          }
+        }
+        else {
+          for (var i = initial; i < newpos; i++) {
+            deck[initial] = deck[initial + 1]
+          }
+        }
+        deck[newpos] = card
+        return newpos
+      }
+
+      function tripleCut(deck, pointA, pointB) {
+        // alert("Triple cutting " + pointA + " and " + pointB)
+        var slice1 = deck.slice(0, pointA)
+        var slice2 = deck.slice(pointA, pointB)
+        var slice3 = deck.slice(pointB)
+
+        return slice3.concat(slice2).concat(slice1)
+      }
+
+      function countCut(deck) {
+        var countValue = calcCard(deck[deck.length - 1])
+        var slice1 = deck.slice(0, countValue)
+        var slice2 = deck.slice(countValue, deck.length - 1)
+        var slice3 = deck.slice(deck.length - 1)
+        return slice2.concat(slice1).concat(slice3)
+      }
+
       function calcCard(card) {
         if (card == 'JA' || card == 'JB') {
           return 53
@@ -171,29 +269,39 @@
           return "Suit is invalid"
         }
 
+      function calcOutput(card) {
+        var value = cardValue(card.substring(0, card.length - 1))
+        var suit  = suitMultiplier(card.substring(card.length - 1))
+
+        if (suit == 2) {
+          suit = 0;
+        }
+
+        if (suit == 3) {
+          suit = 1
+        }
+
         return value + (suit * 13)
       }
 
       function cardValue(card) {
-          for (var i = 1; i < values.length; i++) {
-              if (card == values[i]) {
-                return i
-              }
-          }
-
-          if (card == 'A' || card == 'B') {
-            return 53
-          }
-          return -1
+        return values.indexOf(card)
       }
 
       function suitMultiplier(suit) {
-          for (var i = 0; i < suits.length; i++) {
-              if (suit == suits[i]) {
-                return i
-              }
+          return suits.indexOf(suit)
+      }
+
+      function convertToValues(toConvert) {
+        var retval = []
+        var arr = toConvert.split('');
+        var idx = 0;
+        for (var i = 0; i < arr.length; i++) {
+          if (alphabet.indexOf(arr[i]) != -1) {
+            retval[idx++] = alphabet.indexOf(arr[i]);
           }
-          return -1
+        } 
+        return retval;       
       }
 
       function convertToSections(toConvert) {
