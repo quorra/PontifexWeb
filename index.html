@@ -161,11 +161,39 @@
         var message = convertToValues($('#message1').val().toUpperCase());
 
         var deck = $.trim($('#deck1').val()).length == 165 || $.trim($('#deck1').val()).length == 166 ? $.trim($('#deck1').val()).split(' ') : deckFromPassPhrase($('#deck1').val())
+        
+        var keystream = keystreamForMessage(message, deck)
+        var encrypted_arr = []
+        for (var i = 0 ; i < message.length; i ++) {
+          var output = message[i] + keystream[i];
+          if (output > 26) {
+            output -= 26;
+          }
+          encrypted_arr[i] = alphabet[output]
+        }
+        $('#encryptedMessage').hide();
+        $('#encryptedMessage #value').html("Message: " + message.join('&nbsp;') + '<br/>' + "Keystream: " + keystream.join('&nbsp;') + '<br/>' + "Encrypted: " + encrypted_arr.join('&nbsp;'));
+        $('#encryptedMessage').slideDown('slow', function() {
+        });
+      });
+
+      $('#decryptButton').on('click', function() {
+        var message = convertToValues($('#message2').val().toUpperCase());
+
+        var deck = $.trim($('#deck2').val()).length == 165 || $.trim($('#deck2').val()).length == 166 ? $.trim($('#deck2').val()).split(' ') : deckFromPassPhrase($('#deck2').val())
 
         var keystream = keystreamForMessage(message, deck)
-        $('#encryptedMessage').hide();
-        $('#encryptedMessage #value').html(message.join('&nbsp;') + '<br/>' + keystream.join('&nbsp;'));
-        $('#encryptedMessage').slideDown('slow', function() {
+        var encrypted_arr = []
+        for (var i = 0 ; i < message.length; i ++) {
+          var output = message[i] - keystream[i];
+          if (output < 1) {
+            output += 26;
+          }
+          encrypted_arr[i] = alphabet[output]
+        }
+        $('#decryptedMessage').hide();
+        $('#decryptedMessage #value').html("Message: " + message.join('&nbsp;') + '<br/>' + "Keystream: " + keystream.join('&nbsp;') + '<br/>' + "Decrypted: " + encrypted_arr.join('&nbsp;'));
+        $('#decryptedMessage').slideDown('slow', function() {
         });
       });
 
@@ -186,7 +214,7 @@
       function incrementKeyStream(deck) {
         var jaPos = moveCard(deck, 'JA', 1)
         var jbPos = moveCard(deck, 'JB', 2)
-
+        
         if (jaPos > jbPos) {
           pos1 = jbPos
           pos2 = jaPos
@@ -201,13 +229,11 @@
 
         countValue = calcCard(deck[0])
 
-        /*
         if (deck[countValue - 1] == 'JB' || deck[countValue - 1] == 'JA') {
           return incrementKeyStream(deck)
         }
 
         return calcOutput(deck[countValue - 1])
-        */
       }
 
       function moveCard(deck, card, position) {
@@ -226,12 +252,12 @@
 
         if (initial > newpos) {
           for (var i = initial; i > newpos; i--) {
-            deck[initial] = deck[initial - 1]
+            deck[i] = deck[i - 1]
           }
         }
         else {
           for (var i = initial; i < newpos; i++) {
-            deck[initial] = deck[initial + 1]
+            deck[i] = deck[i + 1]
           }
         }
         deck[newpos] = card
@@ -241,8 +267,8 @@
       function tripleCut(deck, pointA, pointB) {
         // alert("Triple cutting " + pointA + " and " + pointB)
         var slice1 = deck.slice(0, pointA)
-        var slice2 = deck.slice(pointA, pointB)
-        var slice3 = deck.slice(pointB)
+        var slice2 = deck.slice(pointA, pointB + 1)
+        var slice3 = pointB == 53 ? [] : deck.slice(pointB + 1)
 
         return slice3.concat(slice2).concat(slice1)
       }
@@ -268,6 +294,9 @@
         if (suit == -1) {
           return "Suit is invalid"
         }
+
+        return value + (suit * 13)
+      }
 
       function calcOutput(card) {
         var value = cardValue(card.substring(0, card.length - 1))
